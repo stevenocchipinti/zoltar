@@ -8,7 +8,7 @@ AUDIO_DIR = "files"
 media_player = vlc.MediaPlayer()
 files = os.listdir("files")
 
-def button_callback():
+def button_callback(channel):
     print("Button pressed!")
     file = random.choice(files)
     print("Playing file: " + file)
