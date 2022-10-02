@@ -15,7 +15,7 @@ def move_jaw_while_playing(delay=0.5):
     time.sleep(delay)
     while media_player.is_playing():
         print(".", end="", flush = True)
-        sleep(0.3)
+        time.sleep(0.3)
     print(";")
 
 def play(filename):
