@@ -1,0 +1,10 @@
+[Unit]
+Description=Zoltar service
+After=multi-user.target
+
+[Service]
+Type=idle
+ExecStart=/usr/bin/python /home/zoltar/zoltar/play.py > /var/log/zoltar.log 2>&1
+
+[Install]
+WantedBy=multi-user.target
