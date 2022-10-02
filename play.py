@@ -6,16 +6,42 @@ import os
 import time
 import signal
 
-files_path = os.path.join(os.path.dirname(__file__), "files")
+AUDIO_FILES_DIR = "files"
+STARTUP_AUDIO = "boot.mp3"
+
+BUTTON_PIN = 10
+SERVO_PIN = 8
+
+SERVO_MIN_ANGLE = 0
+SERVO_MAX_ANGLE = 180
+SERVO_INCREMENT = 0.5
+SERVO_INTERVAL = 0.5
+
+files_path = os.path.join(os.path.dirname(__file__), AUDIO_FILES_DIR)
 files = os.listdir(files_path)
 
 media_player = vlc.MediaPlayer()
 servo = None
 
+# BUG: Currently there is 2x delays:
+#   1. move_jaw
+#   2. jaw_sequence
+
 def move_jaw(angle):
     servo.ChangeDutyCycle(2+(angle/18))
-    time.sleep(0.5)
+    time.sleep(SERVO_INTERVAL)
     servo.ChangeDutyCycle(0)
+
+def jaw_sequence():
+    current = SERVO_MIN_ANGLE
+    while current + SERVO_INCREMENT <= SERVO_MAX_ANGLE:
+        current = current + SERVO_INCREMENT
+        move_jaw(current)
+        time.sleep(SERVO_INTERVAL)
+    while current - SERVO_INCREMENT >= SERVO_MIN_ANGLE:
+        current = current - SERVO_INCREMENT
+        move_jaw(current)
+        time.sleep(SERVO_INTERVAL)
 
 def move_jaw_while_playing(delay=0.5):
     time.sleep(delay)
@@ -32,24 +58,28 @@ def play(filename):
     move_jaw_while_playing()
 
 def button_callback(channel):
-    move_jaw(random.randint(0,180))
-    # play("files/" + random.choice(files))
+    # move_jaw(random.randint(0,180))
+    jaw_sequence()
+    # play(AUDIO_FILES_DIR + random.choice(files))
 
 try:
     GPIO.setmode(GPIO.BOARD)
 
-    GPIO.setup(10, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) # initially pulled low (off)
-    GPIO.add_event_detect(10, GPIO.RISING, callback=button_callback)
+    # Start with the pin initially pulled low (off)
+    GPIO.setup(BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.add_event_detect(BUTTON_PIN, GPIO.RISING, callback=button_callback)
 
-    GPIO.setup(8, GPIO.OUT)
-    servo = GPIO.PWM(8 ,50)
+    GPIO.setup(SERVO_PIN, GPIO.OUT)
+    servo = GPIO.PWM(SERVO_PIN ,50)
     servo.start(0)
 
-    play("boot.mp3")
+    move_jaw(SERVO_MIN_ANGLE)
+    play(STARTUP_AUDIO)
 
     signal.pause()
 
 except KeyboardInterrupt:
+    move_jaw(SERVO_MIN_ANGLE)
     print("Thanks for playing")
 
 finally:
