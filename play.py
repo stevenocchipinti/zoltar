@@ -6,7 +6,7 @@ import os
 import time
 import signal
 
-files_path = os.path.join(os.path.dirname(_file_), "files")
+files_path = os.path.join(os.path.dirname(__file__), "files")
 files = os.listdir(files_path)
 
 media_player = vlc.MediaPlayer()
@@ -20,7 +20,7 @@ def move_jaw_while_playing(delay=0.5):
 
 def play(filename):
     print("Playing file: " + filename)
-    full_path = os.path.join(os.path.dirname(_file_), filename)
+    full_path = os.path.join(os.path.dirname(__file__), filename)
     media_player.set_media(vlc.Media(full_path))
     media_player.play()
     move_jaw_while_playing()
