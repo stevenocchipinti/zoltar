@@ -16,6 +16,7 @@ SERVO_MIN_ANGLE = 0
 SERVO_MAX_ANGLE = 180
 SERVO_INCREMENT = 0.5
 SERVO_INTERVAL = 0.5
+SERVO_TIME_TO_MOVE = 0.5
 
 files_path = os.path.join(os.path.dirname(__file__), AUDIO_FILES_DIR)
 files = os.listdir(files_path)
@@ -27,9 +28,10 @@ servo = None
 #   1. move_jaw
 #   2. jaw_sequence
 
-def move_jaw(angle):
+def move_jaw(angle, time_to_move=SERVO_TIME_TO_MOVE):
+    print(f"Moving to {angle} degrees")
     servo.ChangeDutyCycle(2+(angle/18))
-    time.sleep(SERVO_INTERVAL)
+    time.sleep(time_to_move)
     servo.ChangeDutyCycle(0)
 
 def jaw_sequence():
